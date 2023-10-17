@@ -67,7 +67,7 @@
             </div>
           </div>
           <div class="col-md">
-            <label for="howMany">How many (%)</label>
+            <label for="howMany">How many sentences</label>
             <input
               type="number"
               id="howMany"

@@ -7,12 +7,18 @@ import TestSet from "../views/TestSet.vue";
 import CreateReport from "../views/CreateReport.vue";
 import AllReports from "../views/AllReports.vue";
 import Statistics from "../views/Statistics.vue";
+import CreateSentence from "../views/CreateSentence.vue";
 
 const routes = [
   {
     path: "/",
     name: "/",
     redirect: "/dashboard-default",
+  },
+  {
+    path: "/create-sentence",
+    name: "create-sentence",
+    component: CreateSentence,
   },
   {
     path: "/dashboard-default",
