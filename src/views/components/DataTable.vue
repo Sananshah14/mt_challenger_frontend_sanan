@@ -16,7 +16,7 @@
           <th>Data Point ID</th>
           <th>Source</th>
           <th>Category</th>
-          <th>Barrier</th>
+          <th>Phenomenon</th>
         </tr>
       </thead>
       <tbody>
@@ -48,7 +48,10 @@ export default {
   methods: {
     exportData() {
       const dataAsText = this.tableData
-        .map((item) => `${item.id},${item.name},${item.value}`)
+        .map(
+          (item) =>
+            `${item.dataPointId},${item.source},${item.category},${item.barrier}`
+        )
         .join("\n");
       const blob = new Blob([dataAsText], { type: "text/plain" });
       const url = URL.createObjectURL(blob);

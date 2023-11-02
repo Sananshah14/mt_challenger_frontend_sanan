@@ -11,60 +11,10 @@
               class="form-control"
               v-model="selectedLanguage"
             >
-              <option value="De -> En">De -> En</option>
-              <option value="En -> De">En -> De</option>
-              <option value="RN -> En">RN -> En</option>
+              <option value="deen">De -> En</option>
+              <option value="ende">En -> De</option>
+              <option value="rnen">RN -> En</option>
             </select>
-          </div>
-          <div class="col-md">
-            <label
-              for="category"
-              style="
-                font-weight: bold;
-                margin-top: 10px;
-                display: block;
-                text-align: center;
-              "
-              >Choose Categories/Phenomena:</label
-            >
-            <label style="margin-top: 10px">
-              <input
-                type="checkbox"
-                v-model="selectAll"
-                @change="toggleAllSubcategories"
-              />
-              All
-            </label>
-            <div
-              v-for="(category, index) in categories"
-              :key="index"
-              class="category"
-            >
-              <label style="margin-top: 10px">
-                <input
-                  type="checkbox"
-                  :value="category.name"
-                  v-model="selectedCategories"
-                  @change="toggleSubcategories(category)"
-                />
-                {{ category.name }}
-              </label>
-              <div class="subcategory-list">
-                <label
-                  v-for="(subcategory, subIndex) in category.subcategories"
-                  :key="subIndex"
-                  style="margin-top: 5px"
-                >
-                  <input
-                    type="checkbox"
-                    :value="subcategory"
-                    :disabled="!selectedCategories.includes(category.name)"
-                    v-model="selectedSubcategories"
-                  />
-                  {{ subcategory }}
-                </label>
-              </div>
-            </div>
           </div>
           <div class="col-md">
             <label for="howMany">How many sentences</label>
@@ -72,19 +22,91 @@
               type="number"
               id="howMany"
               class="form-control"
-              min="0"
-              max="100"
+              v-model="howMany"
             />
           </div>
-        </div>
-        <div class="col-md">
-          <button
-            class="btn btn-primary"
-            @click="createTestSet"
-            style="float: left"
-          >
-            Create
-          </button>
+          <div class="col-md">
+            <label for="Choose Categories/Phenomena"
+              >Choose Categories/Phenomena:</label
+            >
+            <input
+              type="text"
+              id="categoryInput"
+              class="form-control"
+              placeholder="Choose Categories/Phenomena"
+              @click="toggleCategoryList"
+            />
+            <div
+              id="categoryList"
+              class="category-list"
+              v-show="isCategoryListVisible"
+            >
+              <div class="selected-options">
+                <span
+                  v-for="selectedCategory in Categories"
+                  :key="selectedCategory"
+                  class="selected-option"
+                >
+                  {{ selectedCategory }}
+                </span>
+                <span
+                  v-for="selectedSubcategory in Phenomenon"
+                  :key="selectedSubcategory"
+                  class="selected-option"
+                >
+                  {{ selectedSubcategory }}
+                </span>
+              </div>
+              <label class="form-check">
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  v-model="selectAll"
+                  @change="toggleAllPhenomenon"
+                />
+                All
+              </label>
+              <div
+                v-for="(category, index) in categories"
+                :key="index"
+                class="category"
+              >
+                <label class="form-check">
+                  <input
+                    type="checkbox"
+                    :value="category.name"
+                    v-model="Categories"
+                    @change="toggleSubcategories(category)"
+                  />
+                  {{ category.name }}
+                </label>
+                <div class="subcategory-list">
+                  <label
+                    v-for="(subcategory, subIndex) in category.Phenomenon"
+                    :key="subIndex"
+                    class="form-check"
+                  >
+                    <input
+                      type="checkbox"
+                      :value="subcategory"
+                      :disabled="!Categories.includes(category.name)"
+                      v-model="Phenomenon"
+                    />
+                    {{ subcategory }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md">
+            <button
+              class="btn btn-primary"
+              @click="createTestSet"
+              style="float: left; margin-top: 32px"
+            >
+              Create Test Set
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -104,7 +126,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 import DataTable from "../views/components/DataTable.vue";
 export default {
   components: {
@@ -115,26 +137,27 @@ export default {
       showTable: false,
       tableData: [],
       selectAll: false,
-      selectedCategories: [],
-      selectedSubcategories: [],
-      selectedLanguage: "De -> En",
-      howMany: 0,
+      Categories: [],
+      Phenomenon: [],
+      isCategoryListVisible: false,
+      selectedLanguage: "",
+      howMany: "",
       sen: "",
       isCreating: false,
       categories: [
         {
           name: "Ambiguity",
-          subcategories: ["Structure", "Lexical Structure"],
+          Phenomenon: ["Structure", "Lexical Structure"],
         },
         {
           name: "Composition",
-          subcategories: ["Compound", "Phrasal Verb"],
+          Phenomenon: ["Compound", "Phrasal Verb"],
         },
         {
           name: "Coordination and Ellipsis",
-          subcategories: ["Gapping", "Right Not Raising", "Slucing"],
+          Phenomenon: ["Gapping", "Right Not Raising", "Slucing"],
         },
-        // Add other categories and subcategories as needed
+        // Add other categories and Phenomenon as needed
       ],
     };
   },
@@ -142,84 +165,83 @@ export default {
     async createTestSet() {
       try {
         this.isCreating = true;
-        const testset = {
-          language: this.selectedLanguage,
-          categories: this.selectedCategories,
-          subcategories: this.selectedSubcategories,
-          howMany: this.howMany,
-          sen: this.sen,
-        };
-        if (this.howMany > 100) {
-          alert("Percentage cannot exceed 100%");
-          return;
+        const selectedLanguage = this.selectedLanguage;
+
+        // Check if selectedLanguage is empty
+        if (!selectedLanguage) {
+          this.source_language = "";
+          this.target_language = "";
         }
-        this.tableData = [
-          {
-            dataPointId: "DP001",
-            source: "Source A",
-            category: "Cat A",
-            barrier: "Barrier 1",
-          },
-          {
-            dataPointId: "DP002",
-            source: "Source B",
-            category: "Cat B",
-            barrier: "Barrier 2",
-          },
-          {
-            dataPointId: "DP003",
-            source: "Source C",
-            category: "Cat A",
-            barrier: "Barrier 3",
-          },
-        ];
-        this.showTable = true;
+
+        const source_language = selectedLanguage.substring(0, 2);
+        const target_language = selectedLanguage.substring(2);
+        const testset = {
+          source_language: source_language,
+          target_language: target_language,
+          categories: this.Categories,
+          Phenomenon: this.Phenomenon,
+          howMany: this.howMany,
+        };
+
         // Make a POST request to send the test data to the server
-        // const response = await axios.post("YOUR_CREATE_ENDPOINT", testData);
-        // console.log("Test Set Created:", response.data);
-        console.log("Test Set" + testset);
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/testitems/filter_test_items/",
+          testset
+        );
+
+        // Handle the response here, which contains the filtered TestItem objects
+        console.log(response.data);
+
+        // Update the tableData with the response data
+        this.tableData = response.data.map((item) => ({
+          dataPointId: item[0],
+          source: item[1],
+          category: item[2],
+          barrier: item[3],
+        }));
 
         // Reset the form
-        this.selectedCategories = [];
-        this.selectedSubcategories = [];
+        this.Categories = [];
+        this.Phenomenon = [];
         this.selectedLanguage = "De -> En";
         this.howMany = 0;
         this.sen = "";
+        this.showTable = true;
       } catch (error) {
         console.error("Error creating test set:", error);
+      } finally {
         this.isCreating = false;
       }
     },
-    toggleAllSubcategories() {
+    toggleAllPhenomenon() {
       if (this.selectAll) {
-        this.selectedCategories = this.categories.map(
-          (category) => category.name
-        );
-        this.selectedSubcategories = this.categories.flatMap(
-          (category) => category.subcategories
+        this.Categories = this.categories.map((category) => category.name);
+        this.Phenomenon = this.categories.flatMap(
+          (category) => category.Phenomenon
         );
       } else {
-        this.selectedCategories = [];
-        this.selectedSubcategories = [];
+        this.Categories = [];
+        this.Phenomenon = [];
       }
     },
     toggleSubcategories(category) {
-      if (this.selectedCategories.includes(category.name)) {
+      if (this.Categories.includes(category.name)) {
         this.selectedSubcategories = this.selectedSubcategories.filter(
-          (subcategory) => !category.subcategories.includes(subcategory)
+          (subcategory) => !category.Phenomenon.includes(subcategory)
         );
       } else {
         this.selectedSubcategories = [
           ...this.selectedSubcategories,
           ...category.subcategories,
         ];
-      }
-
-      // Update selectAll status
+      } // Update selectAll status
       this.selectAll =
-        this.selectedCategories.length === this.categories.length &&
-        this.selectedSubcategories.length ===
-          this.categories.flatMap((cat) => cat.subcategories).length;
+        this.Categories.length === this.categories.length &&
+        this.Phenomenon.length ===
+          this.categories.flatMap((cat) => cat.Phenomenon).length;
+    },
+    toggleCategoryList() {
+      this.isCategoryListVisible = !this.isCategoryListVisible;
     },
   },
 };
@@ -233,5 +255,9 @@ export default {
 .subcategory-list {
   margin-top: 10px;
   margin-left: 20px;
+}
+.selected-option {
+  display: inline-block;
+  margin-right: 10px; /* Add some spacing between options */
 }
 </style>
