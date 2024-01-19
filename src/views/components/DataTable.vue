@@ -1,16 +1,29 @@
 <template>
-  <button
-    class="download-button"
-    @click="exportData"
-    style="float: right; margin: 10px"
-  >
-    <i class="fas fa-download"></i> Download
-  </button>
+  <span class="form-group">
+    <label for="range">
+      <h5>scramble factor for exporting: {{ value }}</h5></label
+    >
+
+    <input
+      type="range"
+      class="range"
+      id="range"
+      v-model="value"
+      min="1"
+      max="10"
+      style="width: 200px; margin-left: 10px; color: beige"
+    />
+    <button
+      class="download-button"
+      @click="downloadTextFile"
+      style="margin-left: 500px"
+    >
+      <i class="fas fa-download"></i> Download
+    </button>
+  </span>
+
   <div>
-    <svg v-if="isLoading" class="loading-spinner" viewBox="0 0 50 50">
-      <circle class="spinner" cx="25" cy="25" r="20" fill="none" />
-    </svg>
-    <table v-else class="custom-table">
+    <table class="custom-table">
       <thead>
         <tr>
           <th>Data Point ID</th>
@@ -36,29 +49,54 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
       isLoading: false, // Initially not loading
+      value: 0,
     };
   },
   props: {
     tableData: Array,
   },
+  components: {},
   methods: {
-    exportData() {
-      const dataAsText = this.tableData
-        .map(
-          (item) =>
-            `${item.dataPointId},${item.source},${item.category},${item.barrier}`
-        )
-        .join("\n");
-      const blob = new Blob([dataAsText], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "table_data.txt";
-      a.click();
+    loadData() {
+      this.tableData.map(
+        (item) =>
+          `${item.dataPointId},${item.source},${item.category},${item.barrier}`
+      );
+    },
+
+    async downloadTextFile() {
+      try {
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/testitems/download_text_file/",
+          {
+            content: this.tableData,
+            scramblingFactor: this.value,
+          }
+        );
+
+        const templateId = response.data.template_id;
+        const textFileContent = response.data.text_file_content;
+
+        const blob = new Blob([textFileContent], { type: "text/plain" });
+
+        const filename = `template_${templateId}.txt`;
+
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+
+        document.body.appendChild(link);
+        link.click();
+
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error("Error downloading text file:", error);
+      }
     },
     getRowStyle(index) {
       return {

@@ -5,15 +5,27 @@
       <div class="card-body">
         <div class="row">
           <div class="col-md">
-            <label for="languageDirection">Language Direction:</label>
+            <label for="languageDirection">Source Language:</label>
             <select
               id="languageDirection"
               class="form-control"
-              v-model="selectedLanguage"
+              v-model="SourceLanguage"
             >
-              <option value="deen">De -> En</option>
-              <option value="ende">En -> De</option>
-              <option value="rnen">RN -> En</option>
+              <option value="de">German</option>
+              <option value="en">English</option>
+              <option value="rn">Russain</option>
+            </select>
+          </div>
+          <div class="col-md">
+            <label for="languageDirection">Target Language:</label>
+            <select
+              id="languageDirection"
+              class="form-control"
+              v-model="TargetLanguage"
+            >
+              <option value="de">German</option>
+              <option value="en">English</option>
+              <option value="rn">Russain</option>
             </select>
           </div>
           <div class="col-md">
@@ -140,7 +152,8 @@ export default {
       Categories: [],
       Phenomenon: [],
       isCategoryListVisible: false,
-      selectedLanguage: "",
+      SourceLanguage: "",
+      TargetLanguage: "",
       howMany: "",
       sen: "",
       isCreating: false,
@@ -165,19 +178,16 @@ export default {
     async createTestSet() {
       try {
         this.isCreating = true;
-        const selectedLanguage = this.selectedLanguage;
 
-        // Check if selectedLanguage is empty
-        if (!selectedLanguage) {
-          this.source_language = "";
-          this.target_language = "";
+        if (this.SourceLanguage == this.TargetLanguage) {
+          alert(
+            "Source language and Target language are same. Please enter different source language and target language"
+          );
+          return;
         }
-
-        const source_language = selectedLanguage.substring(0, 2);
-        const target_language = selectedLanguage.substring(2);
         const testset = {
-          source_language: source_language,
-          target_language: target_language,
+          source_language: this.SourceLanguage,
+          target_language: this.TargetLanguage,
           categories: this.Categories,
           Phenomenon: this.Phenomenon,
           howMany: this.howMany,
@@ -188,9 +198,6 @@ export default {
           "http://127.0.0.1:8000/api/testitems/filter_test_items/",
           testset
         );
-
-        // Handle the response here, which contains the filtered TestItem objects
-        console.log(response.data);
 
         // Update the tableData with the response data
         this.tableData = response.data.map((item) => ({

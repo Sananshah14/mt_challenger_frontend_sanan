@@ -35,9 +35,9 @@
               <thead>
                 <tr>
                   <th>FileName</th>
-                  <th>SetID</th>
-                  <th>Choose Engine</th>
-                  <th>Type of Engine</th>
+                  <th>Template ID</th>
+                  <th>Engine</th>
+                  <th>Engine Type</th>
                   <th>Language Direction</th>
                   <th>Comments</th>
                 </tr>
@@ -47,18 +47,14 @@
                   <td>
                     <input v-model="file.fileName" class="form-control" />
                   </td>
-                  <td><input v-model="file.setID" class="form-control" /></td>
                   <td>
-                    <select v-model="file.chooseEngine" class="form-select">
-                      <option value="">Select Engine</option>
-                      <!-- Add options for ChooseEngine -->
-                    </select>
+                    <input v-model="file.template" class="form-control" />
                   </td>
                   <td>
-                    <select v-model="file.typeOfEngine" class="form-select">
-                      <option value="">Select Type of Engine</option>
-                      <!-- Add options for TypeofEngine -->
-                    </select>
+                    <input v-model="file.engine" class="form-control" />
+                  </td>
+                  <td>
+                    <input v-model="file.engine_type" class="form-control" />
                   </td>
                   <td>
                     <select
@@ -71,7 +67,7 @@
                   </td>
                   <td>
                     <textarea
-                      v-model="file.comments"
+                      v-model="file.comment"
                       class="form-control"
                     ></textarea>
                   </td>
@@ -89,6 +85,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "CreateReport",
   data() {
@@ -100,21 +98,30 @@ export default {
     handleFileUpload(event) {
       const fileList = event.target.files;
       for (let i = 0; i < fileList.length; i++) {
+        const templateIDMatch = fileList[i].name.match(/template_(\d+)\./);
+        const templateID = templateIDMatch ? templateIDMatch[1] : "";
+
         this.selectedFiles.push({
-          fileName: fileList[i].name,
-          setID: "",
-          chooseEngine: "",
-          typeOfEngine: "",
-          languageDirection: "",
-          comments: "",
+          legacy_id: null,
+          template: templateID,
+          engine: "",
+          engine_type: "",
+          comment: "",
         });
       }
     },
     createReport() {
-      // Logic to create the report based on selectedFiles
-      console.log(this.selectedFiles);
-      // Reset the form or perform other actions as needed
-      this.selectedFiles = [];
+      axios
+        .post("http://127.0.0.1:8000/api/reports/", {
+          reports: this.selectedFiles,
+        })
+        .then((response) => {
+          console.log("Report creation successful", response.data);
+          this.selectedFiles = [];
+        })
+        .catch((error) => {
+          console.error("Error creating report", error);
+        });
     },
   },
 };

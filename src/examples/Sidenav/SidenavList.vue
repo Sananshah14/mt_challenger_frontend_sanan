@@ -17,19 +17,6 @@
       </li>
       <li class="nav-item">
         <sidenav-item
-          url="/create-sentence"
-          :class="getRoute() === 'create-sentence' ? 'active' : ''"
-          :navText="'New Sentence'"
-        >
-          <template v-slot:icon>
-            <i
-              class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"
-            ></i>
-          </template>
-        </sidenav-item>
-      </li>
-      <li class="nav-item">
-        <sidenav-item
           url="/testset"
           :class="getRoute() === 'testset' ? 'active' : ''"
           :navText="'TestSet'"
