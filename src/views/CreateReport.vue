@@ -75,7 +75,7 @@
               </tbody>
             </table>
             <button @click.prevent="createReport" class="btn btn-primary">
-              Create Report
+              Create Reports
             </button>
           </div>
         </div>
