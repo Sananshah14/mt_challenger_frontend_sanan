@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Dashboard from "../views/Dashboard.vue";
+
 import Signup from "../views/Signup.vue";
 import Signin from "../views/Signin.vue";
 import TestSet from "../views/TestSet.vue";
@@ -9,15 +9,11 @@ import Statistics from "../views/Statistics.vue";
 
 const routes = [
   {
-    path: "/",
-    name: "/",
-    redirect: "/dashboard-default",
-  },
-  {
     path: "/dashboard-default",
     name: "Dashboard",
-    component: Dashboard,
+    component: () => import("../views/Dashboard.vue"), // Replace './views/DashboardDefault.vue' with the actual path to your component
   },
+
   {
     path: "/testset",
     name: "TestSet",

@@ -157,24 +157,31 @@ export default {
       howMany: "",
       sen: "",
       isCreating: false,
-      categories: [
-        {
-          name: "Ambiguity",
-          Phenomenon: ["Structure", "Lexical Structure"],
-        },
-        {
-          name: "Composition",
-          Phenomenon: ["Compound", "Phrasal Verb"],
-        },
-        {
-          name: "Coordination and Ellipsis",
-          Phenomenon: ["Gapping", "Right Not Raising", "Slucing"],
-        },
-        // Add other categories and Phenomenon as needed
-      ],
+      categories: [],
     };
   },
+  created() {
+    // Fetch data from the API when the component is created
+    this.fetchCategories();
+  },
   methods: {
+    async fetchCategories() {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/categories/"
+        );
+        // Extract the data from the response
+        const categoryData = response.data;
+
+        // Map the category data to the format expected by your component
+        this.categories = categoryData.map((category) => ({
+          name: category.name,
+          Phenomenon: category.phenomenon_set.map((item) => item.name),
+        }));
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    },
     async createTestSet() {
       try {
         this.isCreating = true;

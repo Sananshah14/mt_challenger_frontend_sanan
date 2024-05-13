@@ -51,7 +51,16 @@
                     <input v-model="file.template" class="form-control" />
                   </td>
                   <td>
-                    <input v-model="file.engine" class="form-control" />
+                    <select v-model="file.engine" class="form-select">
+                      <option value="">Select Engine</option>
+                      <option
+                        v-for="(option, index) in engineOptions"
+                        :key="index"
+                        :value="option"
+                      >
+                        {{ option }}
+                      </option>
+                    </select>
                   </td>
                   <td>
                     <input v-model="file.engine_type" class="form-control" />
@@ -62,6 +71,11 @@
                       class="form-select"
                     >
                       <option value="">Select Language Direction</option>
+                      <option value="ende">English to German</option>
+                      <option value="deen">German to English</option>
+                      <option value="enrn">English to Russian</option>
+                      <option value="dern">German to Russain</option>
+
                       <!-- Add options for LanguageDirection -->
                     </select>
                   </td>
@@ -92,36 +106,163 @@ export default {
   data() {
     return {
       selectedFiles: [],
+      engineOptions: [
+        "Google",
+        "Google API",
+        "Google web",
+        "Bing",
+        "test engine",
+        "Edinburgh",
+        "DeepL",
+        "Lucy",
+        "JHU.5706",
+        "LMU-nmt.5756",
+        "LMU-unsup.5650",
+        "MLLP-UPV.5554",
+        "NJUNMT-private.5406",
+        "NTT.5666",
+        "online-A.0",
+        "online-B.0",
+        "online-F.0",
+        "online-G.0",
+        "online-Y.0",
+        "RWTH-UNSUPER",
+        "RWTH",
+        "Ubiqus-NMT",
+        "UCAM",
+        "uedin",
+        "JHU",
+        "LMU-nmt",
+        "MLLP-UPV",
+        "NJUNMT-private",
+        "NTT",
+        "LMU-unsup",
+        "fit-Moses",
+        "Google Translate",
+        "dfki-nmt",
+        "Facebook",
+        "MLLP",
+        "MSRA.MADL",
+        "NEU",
+        "online-A",
+        "online-B",
+        "online-G",
+        "online-X",
+        "online-Y",
+        "PROMT",
+        "RWTH_Aachen",
+        "TartuNLP",
+        "OpenNMT-WMT17",
+        "OpenNMT WMT19 basic",
+        "OpenNMT WMT19 (data: 3M)",
+        "Huoshan Translate.789",
+        "Online-A.1571",
+        "Online-B.1587",
+        "Online-Z.1629",
+        "Online-G.1553",
+        "PROMT NMT.77",
+        "Tohoku-AIP-NTT.1442",
+        "UEDIN.1066",
+        "WMTBiomedBaseline.387.txt",
+        "ZLabs-NLP.1153",
+        "OPPO.1360",
+        "dfki-tub-ws2021-stadler-ende-m",
+        "BUPT",
+        "eTrans",
+        "Facebook-AI",
+        "happypoet",
+        "HuaweiTSC",
+        "ICL",
+        "Manifold",
+        "Nemo",
+        "nuclear",
+        "Online-W",
+        "P3AI",
+        "UF",
+        "VolcTrans-AT",
+        "VolcTrans-GLAT",
+        "borderline",
+        "SMU",
+      ],
     };
   },
   methods: {
     handleFileUpload(event) {
       const fileList = event.target.files;
+
+      // Create an array to hold all file reading promises
+      const promises = [];
+
       for (let i = 0; i < fileList.length; i++) {
-        const templateIDMatch = fileList[i].name.match(/template_(\d+)\./);
+        const file = fileList[i];
+        const templateIDMatch = file.name.match(/template_(\d+)\./);
         const templateID = templateIDMatch ? templateIDMatch[1] : "";
 
-        this.selectedFiles.push({
-          legacy_id: null,
-          template: templateID,
-          engine: "",
-          engine_type: "",
-          comment: "",
-        });
+        // Read the content of the file as text and push the promise to the array
+        promises.push(
+          new Promise((resolve, reject) => {
+            this.readFileContent(file)
+              .then((fileContent) => {
+                // Resolve with an object containing file data and content
+                resolve({
+                  fileName: file.name,
+                  template: templateID,
+                  engine: "",
+                  engine_type: "",
+                  languageDirection: "",
+                  comment: "",
+                  content: fileContent, // Store content as text
+                });
+              })
+              .catch((error) => {
+                console.error("Error reading file:", error);
+                reject(error);
+              });
+          })
+        );
       }
-    },
-    createReport() {
-      axios
-        .post("http://127.0.0.1:8000/api/reports/", {
-          reports: this.selectedFiles,
-        })
-        .then((response) => {
-          console.log("Report creation successful", response.data);
-          this.selectedFiles = [];
+
+      // Wait for all file reading promises to resolve
+      Promise.all(promises)
+        .then((selectedFiles) => {
+          // Add selected files to the selectedFiles array
+          this.selectedFiles.push(...selectedFiles);
         })
         .catch((error) => {
-          console.error("Error creating report", error);
+          console.error("Error processing files:", error);
         });
+    },
+    readFileContent(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          const fileContent = event.target.result;
+          resolve(fileContent);
+        };
+
+        reader.onerror = (error) => {
+          reject(error);
+        };
+
+        // Read the content of the file as text
+        reader.readAsText(file);
+      });
+    },
+    createReport() {
+      if (this.selectedFiles.length > 0) {
+        axios
+          .post("http://127.0.0.1:8000/api/reports/", {
+            reports: this.selectedFiles,
+          })
+          .then((response) => {
+            console.log("Report creation successful", response.data);
+            this.selectedFiles = []; // Clear selected files after successful creation
+          })
+          .catch((error) => {
+            console.error("Error creating report", error);
+          });
+      }
     },
   },
 };
