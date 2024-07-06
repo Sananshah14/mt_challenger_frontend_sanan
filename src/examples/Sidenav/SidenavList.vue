@@ -45,7 +45,7 @@
         <sidenav-item
           url="/all-reports"
           :class="getRoute() === 'reports' ? 'active' : ''"
-          :navText="'All reports'"
+          :navText="'All Reports'"
         >
           <template v-slot:icon>
             <i
@@ -101,9 +101,15 @@
           :navText="this.$store.state.isRTL ? 'اشتراك' : 'Sign Up'"
         >
           <template v-slot:icon>
-            <i class="ni ni-collection text-info text-sm opacity-10"></i>
+            <i class="ni ni-collection text-info text-sm opacity-20"></i>
           </template>
         </sidenav-item>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link btn btn-link" @click="logout">
+          <i class="fas fa-sign-out-alt opacity-6 me-1"></i>
+          Logout
+        </button>
       </li>
     </ul>
   </div>
@@ -132,6 +138,9 @@ export default {
     getRoute() {
       const routeArr = this.$route.path.split("/");
       return routeArr[1];
+    },
+    logout() {
+      // Implement your logout logic here
     },
   },
 };

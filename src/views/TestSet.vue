@@ -1,7 +1,6 @@
 <template>
-  <div class="container">
+  <div class="container" style="margin-top: 20px">
     <div class="card">
-      <div class="card-header">Test Set</div>
       <div class="card-body">
         <div class="row">
           <div class="col-md">
@@ -124,12 +123,16 @@
     </div>
   </div>
 
-  <div class="container" style="margin-top: 20px; color: black">
+  <div
+    class="container"
+    v-if="showTable"
+    style="margin-top: 20px; color: black"
+  >
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-body">
-            <DataTable v-if="showTable" :tableData="tableData" />
+            <DataTable :tableData="tableData" />
           </div>
         </div>
       </div>

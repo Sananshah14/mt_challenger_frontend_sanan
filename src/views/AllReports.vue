@@ -25,8 +25,15 @@
         </ul>
       </div>
     </div>
-    <div class="main-content" v-if="isReportSelected">
-      <table class="table table-hover table-bordered">
+    <div
+      class="main-content"
+      v-if="isReportSelected"
+      style="margin-right: 50px"
+    >
+      <table
+        class="table table-hover table-bordered"
+        style="margin-bottom: 70px"
+      >
         <thead>
           <tr>
             <th>Info</th>
@@ -41,6 +48,7 @@
           <tr
             v-for="translation in translations"
             :key="translation.id"
+            @click="openPopup(translation.id)"
             class="table-row"
           >
             <td>{{ translation.label }}</td>
@@ -53,6 +61,11 @@
           </tr>
         </tbody>
       </table>
+      <PopupCard
+        v-if="popupVisible"
+        :translationId="selectedTranslationData"
+        @close="closePopup"
+      />
       <p v-if="!isReportSelected" class="placeholder">
         No report selected. Please select a report from the sidebar.
       </p>
@@ -62,13 +75,19 @@
 
 <script>
 import axios from "axios";
+import PopupCard from "../views/components/PopupCard.vue";
 export default {
   data() {
     return {
       reports: [],
       selectedReport: null,
       translations: [],
+      popupVisible: false,
+      selectedTranslationData: null,
     };
+  },
+  components: {
+    PopupCard,
   },
   computed: {
     isReportSelected() {
@@ -105,12 +124,20 @@ export default {
           console.error("Error fetching translations:", error);
         });
     },
+    openPopup(translationId) {
+      this.selectedTranslationData = translationId;
+      this.popupVisible = true;
+    },
+    closePopup() {
+      this.popupVisible = false;
+    },
   },
   mounted() {
     this.fetchReports();
   },
 };
 </script>
+
 <style scoped>
 /* Reset default browser styles */
 * {
@@ -193,11 +220,12 @@ body {
 .sidebar {
   background-color: #fff;
   padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Main Content Styling */
 .main-content {
-  flex: 1;
   padding: 30px;
   background-color: #fff;
   border-radius: 8px;

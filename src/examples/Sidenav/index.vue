@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="this.$store.state.layout === 'default'"
-    class="min-height-300 position-absolute w-100"
+    class="min-height-300 position-fixed w-100"
     :class="`${this.$store.state.darkMode ? 'bg-transparent' : 'bg-success'}`"
   />
   <aside
