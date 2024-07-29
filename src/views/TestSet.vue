@@ -34,6 +34,7 @@
               id="howMany"
               class="form-control"
               v-model="howMany"
+              min="0"
             />
           </div>
           <div class="col-md">

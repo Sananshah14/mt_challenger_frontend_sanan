@@ -16,7 +16,7 @@
     <button
       class="download-button"
       @click="downloadTextFile"
-      style="margin-left: 500px"
+      style="margin-left: 400px"
     >
       <i class="fas fa-download"></i> Download
     </button>
@@ -127,10 +127,10 @@ export default {
   width: 100%;
   border-collapse: collapse;
   font-family: Arial, sans-serif;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .custom-table th,

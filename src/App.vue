@@ -1,66 +1,32 @@
-<!--
-=========================================================
-* Vue Argon Dashboard 2 - v3.0.0
-=========================================================
-
-* Product Page: https://creative-tim.com/product/vue-argon-dashboard
-* Copyright 2022 Creative Tim (https://www.creative-tim.com)
-
-Coded by www.creative-tim.com
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
 <template>
-  <div
-    v-show="this.$store.state.layout === 'landing'"
-    class="landing-bg h-100 bg-gradient-primary position-fixed w-100"
-  ></div>
-  <sidenav
-    :custom_class="this.$store.state.mcolor"
-    :class="[
-      this.$store.state.isTransparent,
-      this.$store.state.isRTL ? 'fixed-end' : 'fixed-start',
-    ]"
-    v-if="this.$store.state.showSidenav"
-  />
-  <main
-    class="main-content position-relative max-height-vh-100 h-100 border-radius-lg"
-  >
-    <!-- nav -->
-    <navbar
-      :class="[navClasses]"
-      :textWhite="
-        this.$store.state.isAbsolute ? 'text-white opacity-8' : 'text-white'
-      "
-      :minNav="navbarMinimize"
-      v-if="this.$store.state.showNavbar"
-    />
-    <router-view />
-
-    <configurator
-      :toggle="toggleConfigurator"
-      :class="[
-        this.$store.state.showConfig ? 'show' : '',
-        this.$store.state.hideConfigButton ? 'd-none' : '',
-      ]"
-    />
-    <app-footer v-show="this.$store.state.showFooter" class="fixed-bottom" />
-  </main>
+  <div class="app-wrapper">
+    <div class="main-content-wrapper">
+      <sidenav v-if="this.$store.state.showSidenav" />
+      <main class="main-content position-relative border-radius-lg">
+        <router-view />
+      </main>
+      <configurator
+        :toggle="toggleConfigurator"
+        :class="[
+          this.$store.state.showConfig ? 'show' : '',
+          this.$store.state.hideConfigButton ? 'd-none' : '',
+        ]"
+      />
+      <!-- <app-footer v-show="this.$store.state.showFooter" /> -->
+    </div>
+  </div>
 </template>
+
 <script>
 import Sidenav from "./examples/Sidenav";
-// import Navbar from "@/examples/Navbars/Navbar.vue";
-import AppFooter from "@/examples/Footer.vue";
+//import AppFooter from "@/examples/Footer.vue";
 import { mapMutations } from "vuex";
 
 export default {
   name: "App",
   components: {
     Sidenav,
-    // Navbar,
-    AppFooter,
+    //AppFooter,
   },
   methods: {
     ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
@@ -83,3 +49,29 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.app-wrapper {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidenav {
+  flex-shrink: 0;
+}
+
+.main-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.main-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+</style>

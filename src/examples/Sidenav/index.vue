@@ -1,47 +1,33 @@
 <template>
-  <div
-    v-show="this.$store.state.layout === 'default'"
-    class="min-height-300 position-fixed w-100"
-    :class="`${this.$store.state.darkMode ? 'bg-transparent' : 'bg-success'}`"
-  />
-  <aside
-    class="my-3 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs border-radius-xl"
-    :class="`${
-      this.$store.state.isRTL
-        ? 'me-3 rotate-caret fixed-end'
-        : 'fixed-start ms-3'
-    } 
-    ${
-      this.$store.state.layout === 'landing'
-        ? 'bg-transparent shadow-none'
-        : ' '
-    } ${this.$store.state.sidebarType}`"
-    id="sidenav-main"
-  >
-    <div class="sidenav-header">
-      <i
-        class="top-0 p-3 cursor-pointer fas fa-times text-secondary opacity-5 position-absolute end-0 d-none d-xl-none"
-        aria-hidden="true"
-        id="iconSidenav"
-      ></i>
-      <router-link class="m-0 navbar-brand" to="/">
-        <img
-          :src="
-            this.$store.state.darkMode ||
-            this.$store.state.sidebarType === 'bg-default'
-              ? logoWhite
-              : logo
-          "
-          class="navbar-brand-img h-100"
-          alt="main_logo"
-        />
-        <span class="ms-2 font-weight-bold me-2">MT Challanger</span>
-      </router-link>
-    </div>
-    <hr class="mt-0 horizontal dark" />
-    <sidenav-list :cardBg="custom_class" />
-  </aside>
+  <header>
+    <nav
+      class="navbar navbar-expand shadow-sm"
+      style="background-color: #76c47e"
+    >
+      <div class="container-fluid">
+        <router-link class="navbar-brand d-flex align-items-center" to="/">
+          <img :src="logoSrc" class="navbar-brand-img" alt="main_logo" />
+          <span class="ms-2 fw-bold">MT Challenger</span>
+        </router-link>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <sidenav-list />
+        </div>
+      </div>
+    </nav>
+  </header>
 </template>
+
 <script>
 import SidenavList from "./SidenavList.vue";
 import logo from "@/assets/img/logo-ct-dark.png";
@@ -58,6 +44,31 @@ export default {
       logoWhite,
     };
   },
-  props: ["custom_class", "layout"],
+  computed: {
+    logoSrc() {
+      return this.$store.state.darkMode ||
+        this.$store.state.sidebarType === "bg-default"
+        ? this.logoWhite
+        : this.logo;
+    },
+  },
 };
 </script>
+
+<style scoped>
+.navbar-brand-img {
+  height: 40px;
+}
+.navbar {
+  width: 100%;
+}
+.navbar-toggler {
+  border: none;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    background-color: white; /* Ensure visibility on mobile devices */
+  }
+}
+</style>

@@ -404,9 +404,11 @@ export default {
       } else {
         this.result = "WARNING"; // If none of the above condition are met, the result is set to "WARNING"
       }
+      return this.result;
     },
     handleClick() {
       const data = {
+        label: this.result,
         translation_id: this.translationId,
         positive_regexes: this.positiveRegexes
           .filter((regex) => regex.value.trim() !== "")
@@ -443,6 +445,10 @@ export default {
           console.error("Error updating rules:", error);
           alert("Failed to update rules");
         });
+    },
+    updateLabel(label) {
+      this.result = label;
+      this.handleClick();
     },
   },
 };
