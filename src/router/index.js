@@ -6,6 +6,7 @@ import TestSet from "../views/TestSet.vue";
 import CreateReport from "../views/CreateReport.vue";
 import AllReports from "../views/AllReports.vue";
 import Statistics from "../views/Statistics.vue";
+import ComparisonByYear from "../views/ComparisonByYear.vue";
 
 const routes = [
   {
@@ -43,6 +44,11 @@ const routes = [
     path: "/signup",
     name: "Signup",
     component: Signup,
+  },
+  {
+    path: "/Comparison_By_Year",
+    name: "Comparison_By_Year",
+    component: ComparisonByYear,
   },
 ];
 

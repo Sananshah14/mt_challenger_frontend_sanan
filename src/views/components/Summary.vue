@@ -1,13 +1,12 @@
 <template>
   <div v-if="comparisonData">
     <h3>Comparison Results</h3>
-    <pre>{{ comparisonData }}</pre>
     <table>
       <thead>
         <tr>
           <th>Category</th>
           <th v-for="(engine, index) in selectedEngines" :key="index">
-            {{ engine.engine_name }}
+            {{ engine.engine_name || engine.engine }}
           </th>
           <th>Average</th>
         </tr>

@@ -1,14 +1,11 @@
 <template>
-  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+  <ul class="navbar-nav">
     <li class="nav-item" v-for="item in navItems" :key="item.url">
       <sidenav-item
         :url="item.url"
         :navText="item.text"
         :class="getRoute() === item.route ? 'active' : ''"
       >
-        <template v-slot:icon>
-          <i :class="item.iconClass"></i>
-        </template>
       </sidenav-item>
     </li>
     <li class="nav-item dropdown">
@@ -89,6 +86,12 @@ export default {
           route: "statistics",
           iconClass: "ni ni-calendar-grid-58 text-warning text-sm opacity-10",
         },
+        {
+          url: "/Comparison_By_Year",
+          text: "By Year",
+          route: "Comparison_By_Year",
+          iconClass: "ni ni-calendar-grid-58 text-warning text-sm opacity-10",
+        },
       ],
       accountNavItems: [
         {
@@ -141,10 +144,6 @@ export default {
   background-color: #414343; /* Dark blue for active state */
   color: #ffffff;
   border-radius: 5px;
-}
-
-.navbar-nav .nav-link .icon {
-  margin-right: 5px;
 }
 
 .navbar-nav .dropdown-menu .dropdown-item {
