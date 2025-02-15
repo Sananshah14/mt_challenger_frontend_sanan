@@ -97,13 +97,6 @@
 
       <!-- Tab content rendering -->
       <div class="main-content" v-if="isReportSelected">
-        <ul>
-          <li v-for="report in matchingReports" :key="report.engine">
-            <span>{{ report.engine  }}</span>
-          </li>
-        </ul>
-
-        <!-- Tab content rendering -->
         <div class="tab-content">
           <component
             :is="selectedTab"
@@ -117,7 +110,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"; // Import Axios
 import Summary from "@/views/components/Summary.vue";
 
 export default {
@@ -167,13 +160,12 @@ export default {
     },
     fetchComparisonData(selectedReports) {
       axios
-        .post("http://127.0.0.1:8000/api/compare-reports/", {
+        .post(`${process.env.VUE_APP_API_BASE_URL}/api/compare-reports/`, {
           report_ids: selectedReports,
         })
         .then((response) => {
           this.comparisonData = response.data;
           this.selectedTab = "summary";
-          console.log("Comparison Data:", this.comparisonData);
         })
         .catch((error) => {
           console.error("Error fetching comparison data:", error);
@@ -181,18 +173,19 @@ export default {
     },
     fetchMatchingReports(templateId) {
       axios
-        .get(`http://127.0.0.1:8000/api/matching-reports/${templateId}/`)
+        .get(
+          `${process.env.VUE_APP_API_BASE_URL}/api/matching-reports/${templateId}/`
+        )
         .then((response) => {
           this.matchingReports = response.data;
-          console.log("Match Reports:", this.matchingReports);
         })
         .catch((error) => {
-          console.error("Error fetching comparison data:", error);
+          console.error("Error fetching matching reports:", error);
         });
     },
     fetchTemplates() {
       axios
-        .get("http://127.0.0.1:8000/api/templates-with-report/")
+        .get(`${process.env.VUE_APP_API_BASE_URL}/api/templates-with-report/`)
         .then((response) => {
           this.templates = response.data.map((template) => ({
             ...template,
@@ -367,48 +360,110 @@ body {
 .nav ul li:last-child {
   margin-bottom: 0;
 }
-.template-details {
-  margin-bottom: 20px;
-  display: flex;
-
-  flex-wrap: wrap;
+.template-list {
+  list-style: none;
+  margin: 20px 10px;
+  padding: 10px;
 }
 
-.template-title {
+.template-item {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.template-item:hover {
+  background-color: #f1f1f1;
+  transform: translateY(-2px);
+}
+
+/* Report Info */
+.report-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Template Title */
+.template-title {
+  font-weight: bold;
+  font-size: 18px;
+  color: #fdfbfb;
+  margin-bottom: 5px;
 }
 
 .template-id {
   font-size: 14px;
-  font-weight: bold;
-  color: #fff;
+  color: #fdfbfb;
 }
 
-.template-time {
+/* Template Details */
+.template-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #fdfbfb;
+}
+
+/* Time and Language Styles */
+.template-time,
+.template-lang {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: 12px;
-  color: #fff;
-  margin-bottom: 5px;
+  color: #fdfbfb;
 }
 
+.template-time i,
+.template-lang i {
+  font-size: 14px;
+  color: #007bff;
+}
+
+/* Engine List */
 .engine-list {
-  border-radius: 1px solid #1f6638;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .engine-item {
-  padding: 2px 5px;
-  border-radius: 4px;
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: #ffffff;
   font-size: 12px;
-  color: #fff;
+  font-weight: bold;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.template-lang {
-  font-size: 12px;
-  color: #fff;
+.engine-item:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
 }
-.list-group-item {
-  border: none;
-  border-bottom: 1px solid #e9ecef;
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .template-item {
+    padding: 10px 15px;
+  }
+
+  .template-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .engine-list {
+    justify-content: flex-start;
+  }
 }
 </style>

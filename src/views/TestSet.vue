@@ -38,77 +38,67 @@
             />
           </div>
           <div class="col-md">
-            <label for="Choose Categories/Phenomena"
-              >Choose Categories/Phenomena:</label
-            >
-            <input
-              type="text"
-              id="categoryInput"
-              class="form-control"
-              placeholder="Choose Categories/Phenomena"
-              @click="toggleCategoryList"
-            />
-            <div
-              id="categoryList"
-              class="category-list"
-              v-show="isCategoryListVisible"
-            >
-              <div class="selected-options">
-                <span
-                  v-for="selectedCategory in Categories"
-                  :key="selectedCategory"
-                  class="selected-option"
+            <label for=" ">Select Categories and Phenomenon</label>
+               
+              <input class="form-control" @click="toggleCategoryList" >
+              
+          
+
+              <transition name="slide-fade">
+                <div
+                  v-show="isCategoryListVisible"
+                  class="category-select__dropdown"
                 >
-                  {{ selectedCategory }}
-                </span>
-                <span
-                  v-for="selectedSubcategory in Phenomenon"
-                  :key="selectedSubcategory"
-                  class="selected-option"
-                >
-                  {{ selectedSubcategory }}
-                </span>
-              </div>
-              <label class="form-check">
-                <input
-                  type="checkbox"
-                  class="form-check-input"
-                  v-model="selectAll"
-                  @change="toggleAllPhenomenon"
-                />
-                All
-              </label>
-              <div
-                v-for="(category, index) in categories"
-                :key="index"
-                class="category"
-              >
-                <label class="form-check">
-                  <input
-                    type="checkbox"
-                    :value="category.name"
-                    v-model="Categories"
-                    @change="toggleSubcategories(category)"
-                  />
-                  {{ category.name }}
-                </label>
-                <div class="subcategory-list">
-                  <label
-                    v-for="(subcategory, subIndex) in category.Phenomenon"
-                    :key="subIndex"
-                    class="form-check"
-                  >
-                    <input
-                      type="checkbox"
-                      :value="subcategory"
-                      :disabled="!Categories.includes(category.name)"
-                      v-model="Phenomenon"
-                    />
-                    {{ subcategory }}
-                  </label>
+                  <div class="dropdown-header">
+                    <label class="select-all">
+                      <input
+                        type="checkbox"
+                        v-model="selectAll"
+                        @change="toggleAllPhenomenon"
+                      />
+                      <span class="checkmark"></span>
+                      Select All
+                    </label>
+                  </div>
+
+                  <div class="dropdown-list">
+                    <div
+                      v-for="(category, index) in categories"
+                      :key="index"
+                      class="category-item"
+                    >
+                      <label class="category-label">
+                        <input
+                          type="checkbox"
+                          :value="category.name"
+                          v-model="Categories"
+                          @change="toggleSubcategories(category)"
+                        />
+                        <span class="checkmark"></span>
+                        <span class="category-name">{{ category.name }}</span>
+                      </label>
+
+                      <div class="subcategory-list">
+                        <label
+                          v-for="(subcategory, subIndex) in category.Phenomenon"
+                          :key="subIndex"
+                          class="subcategory-item"
+                        >
+                          <input
+                            type="checkbox"
+                            :value="subcategory"
+                            :disabled="!Categories.includes(category.name)"
+                            v-model="Phenomenon"
+                          />
+                          <span class="checkmark"></span>
+                          {{ subcategory }}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </transition>
+           
           </div>
           <div class="col-md">
             <button
@@ -266,16 +256,65 @@ export default {
 </script>
 
 <style>
-.category-list {
-  margin-top: 10px;
+
+.category-select {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+
+
+
+.selected-tag {
+  background-color: #007bff;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  margin: 2px;
+}
+
+
+.category-select__dropdown {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.category-item {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.category-label {
+  display: flex;
+  align-items: center;
+}
+
+.checkmark {
+  margin-right: 10px;
 }
 
 .subcategory-list {
-  margin-top: 10px;
   margin-left: 20px;
+  padding-top: 5px;
 }
-.selected-option {
-  display: inline-block;
-  margin-right: 10px; /* Add some spacing between options */
+
+.subcategory-item {
+  display: flex;
+  align-items: center;
+
+}
+
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter, .slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
 }
 </style>

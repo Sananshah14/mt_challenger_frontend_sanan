@@ -11,9 +11,10 @@
         />
         <ul class="template-list">
           <li
-            v-for="template in paginatedReports"
+            v-for="template in sortedReports"
             :key="template.id"
             @click="selectTemplate(template)"
+            :class="{ 'selected-template': template.id === selectedTemplateId }"
             class="template-item"
           >
             <div class="report-info">
@@ -62,13 +63,6 @@
 
     <!-- Main content area -->
     <div class="main-content" v-if="isReportSelected">
-      <!--<ul>
-        <li v-for="engine in selectedEngines" :key="engine.engine_name">
-          <span>{{ engine.engine_name }}</span>
-        </li>
-      </ul>-->
-
-      <!-- Tabs for displaying different content -->
       <div class="tabs">
         <button
           @click="selectedTab = 'summary'"
@@ -119,6 +113,7 @@ export default {
       templatePage: 1,
       templatesPerPage: 25,
       comparisonData: null,
+      selectedTemplateId: null,
     };
   },
   components: {
@@ -135,7 +130,11 @@ export default {
       return this.templates.filter((template) => {
         return (
           template.id.toString().includes(searchQuery) ||
-          template.name.toLowerCase().includes(searchQuery)
+          template.name.toLowerCase().includes(searchQuery) ||
+          template.created_time.toLowerCase().includes(searchQuery) ||
+          template.engines.some((engine) =>
+            engine.engine_name.toLowerCase().includes(searchQuery)
+          ) // Check if any engine matches
         );
       });
     },
@@ -147,23 +146,33 @@ export default {
     totalReportPages() {
       return Math.ceil(this.filteredReports.length / this.templatesPerPage);
     },
+    sortedReports() {
+      return this.paginatedReports.slice().sort((a, b) => {
+        // Assuming created_time is a string or Date object
+        return new Date(b.created_time) - new Date(a.created_time);
+      });
+    },
   },
   methods: {
     selectTemplate(template) {
       this.selectedTemplate = template;
-      this.selectedEngines = template.engines;
-      const reportIds = template.engines.map((engine) => engine.reportid);
+      this.selectedEngines = template.engines.map((engine) => ({
+        reportid: engine.reportid,
+        engine_name: engine.engine_name,
+      }));
+      this.selectedTemplateId = template.id;
+      const reportIds = this.selectedEngines.map((engine) => engine.reportid);
       this.fetchComparisonData(reportIds);
     },
     fetchComparisonData(reportIds) {
       axios
-        .post("http://127.0.0.1:8000/api/compare-reports/", {
+        .post(`${process.env.VUE_APP_API_BASE_URL}/api/compare-reports/`, {
           report_ids: reportIds,
         })
         .then((response) => {
           this.comparisonData = response.data;
           this.selectedTab = "summary";
-          console.log("Comparison Data:", this.comparisonData);
+          //console.log("Comparison Data:", this.comparisonData);
         })
         .catch((error) => {
           console.error("Error fetching comparison data:", error);
@@ -171,7 +180,7 @@ export default {
     },
     fetchTemplates() {
       axios
-        .get("http://127.0.0.1:8000/api/templates-with-report/")
+        .get(`${process.env.VUE_APP_API_BASE_URL}/api/templates-with-report/`)
         .then((response) => {
           this.templates = response.data.map((template) => ({
             ...template,
@@ -379,6 +388,10 @@ body {
 }
 
 /* Template Title */
+.template-item.selected-template {
+  background-color: #3d3f3d; /* Light cyan background for selected item */
+  border: 1px solid #9ed453;
+}
 .template-title {
   font-weight: bold;
   font-size: 18px;
