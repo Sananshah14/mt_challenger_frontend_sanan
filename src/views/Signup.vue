@@ -133,11 +133,11 @@ export default {
         )
         .then((response) => {
           console.log(response.data);
-          // Optionally, you can reset the user object after successful submission
+         
           // this.user = {};
         })
         .catch((error) => {
-          console.error(error); // Handle any errors
+          console.error(error); 
         });
     },
   },
