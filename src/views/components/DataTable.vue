@@ -1,33 +1,48 @@
 <template>
-  <span class="form-group">
-    <label for="range">
-      <h5>scramble factor for exporting: {{ value }}</h5></label
-    >
+  <div class="controls">
+    <span class="form-group">
+      <label for="range">
+        <h5>
+          Scramble factor for exporting:<input
+            type="number"
+            class="input-control"
+            v-model="value"
+            min="2"
+            max="10"
+            step="0.5"
+            style="width: 60px; margin-left: 10px"
+            @input="updateValueFromInput"
+          />
+        </h5>
+      </label>
 
-    <input
-      type="range"
-      class="range"
-      id="range"
-      v-model="value"
-      min="1"
-      max="10"
-      style="width: 200px; margin-left: 10px; color: beige"
-    />
+      <input
+        type="range"
+        class="range"
+        id="range"
+        v-model="value"
+        min="2"
+        max="10"
+        step="0.5"
+        style="width: 300px; margin-left: 10px; color: beige"
+        @input="updateValueFromRange"
+      />
+    </span>
     <button
       class="download-button"
       @click="downloadTextFile"
-      style="margin-left: 400px"
+      style="margin-left: auto"
     >
       <i class="fas fa-download"></i> Download
     </button>
-  </span>
+  </div>
 
   <div>
     <table class="custom-table">
       <thead>
         <tr>
-          <th>Data Point ID</th>
-          <th>Source</th>
+          <th>ID</th>
+          <th>Source Sentence</th>
           <th>Category</th>
           <th>Phenomenon</th>
         </tr>
@@ -38,10 +53,10 @@
           :key="item.id"
           :class="index % 2 === 0 ? 'even-row' : 'odd-row'"
         >
-          <td>{{ item.dataPointId }}</td>
-          <td>{{ item.source }}</td>
-          <td>{{ item.category }}</td>
-          <td>{{ item.barrier }}</td>
+          <td>{{ item.id }}</td>
+          <td>{{ item.source_sentence }}</td>
+          <td>{{ item.category_name }}</td>
+          <td>{{ item.phenomenon_name }}</td>
         </tr>
       </tbody>
     </table>
@@ -53,8 +68,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      isLoading: false, // Initially not loading
-      value: 0,
+      isLoading: false,
+      value: 2,
     };
   },
   props: {
@@ -62,10 +77,19 @@ export default {
   },
   components: {},
   methods: {
+    updateValueFromRange(event) {
+      this.value = parseFloat(event.target.value);
+    },
+    updateValueFromInput(event) {
+      const inputValue = parseFloat(event.target.value);
+      if (inputValue >= 2 && inputValue <= 10) {
+        this.value = inputValue;
+      }
+    },
     loadData() {
       this.tableData.map(
         (item) =>
-          `${item.dataPointId},${item.source},${item.category},${item.barrier}`
+          `${item.id},${item.source_sentence},${item.category_name},${item.phenomenon_name}`
       );
     },
 
@@ -103,15 +127,21 @@ export default {
         backgroundColor: index % 2 === 0 ? "#F0F0F0" : "#E0E0E0",
       };
     },
+    debounce(func, delay) {
+      let timeout;
+      return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+      };
+    },
   },
   watch: {
-    // Watch for changes in tableData to toggle isLoading
     tableData: {
       immediate: true,
       handler() {
         this.isLoading = false;
         if (!this.tableData.length) {
-          // Show processing SVG for 5 seconds (5000 milliseconds)
           setTimeout(() => {
             this.isLoading = true;
           }, 5000);
@@ -123,6 +153,38 @@ export default {
 </script>
 
 <style scoped>
+.controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  background: #ddd;
+  border-radius: 5px;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+}
+
+.range::-moz-range-thumb {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+}
+
 .custom-table {
   width: 100%;
   border-collapse: collapse;
@@ -153,13 +215,13 @@ export default {
 }
 
 .download-button {
-  background-color: #007bff;
+  background-color: hwb(211 7% 17%);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .download-button:hover {
