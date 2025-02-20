@@ -131,8 +131,8 @@ export default {
           }
         )
         .then((response) => {
-          const token = response.data.token; // Assuming your Django server sends the token in the 'token' field of the response data
-          localStorage.setItem("token", token); // Save the token in local storage
+          const token = response.data.token; 
+          localStorage.setItem("token", token); 
           this.loggedIn = true;
           this.username = response.data.user.first_name;
           console.log(response.data);
@@ -141,7 +141,7 @@ export default {
           this.$router.push("/dashboard");
         })
         .catch((error) => {
-          console.error(error); // Handle any errors
+          console.error(error); 
         });
     },
   },
