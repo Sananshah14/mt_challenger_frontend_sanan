@@ -18,7 +18,7 @@
               class="form-control"
               @change="handleFileUpload"
             />
-            <!-- Add drag and drop functionality here if desired -->
+           
           </div>
         </div>
       </div>
@@ -257,7 +257,7 @@ export default {
           })
           .then((response) => {
             console.log("Report creation successful", response.data);
-            this.selectedFiles = []; // Clear selected files after successful creation
+            this.selectedFiles = []; 
           })
           .catch((error) => {
             console.error("Error creating report", error);
