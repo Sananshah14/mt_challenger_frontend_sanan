@@ -148,7 +148,7 @@ export default {
     },
     sortedReports() {
       return this.paginatedReports.slice().sort((a, b) => {
-        // Assuming created_time is a string or Date object
+    
         return new Date(b.created_time) - new Date(a.created_time);
       });
     },
