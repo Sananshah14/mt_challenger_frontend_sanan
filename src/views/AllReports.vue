@@ -9,7 +9,7 @@
             class="search-input"
             v-model="Search"
             placeholder="Search Report"
-            style="width: 100%"
+            style="width: 240px"
           />
         </li>
         <ul>
@@ -17,6 +17,10 @@
             v-for="report in paginatedReports"
             :key="report.id"
             @click="selectReport(report)"
+            :class="{
+              'selected-report':
+                selectedReport && selectedReport.id === report.id,
+            }"
           >
             <div class="report-info">
               <div class="report-title">
@@ -32,11 +36,24 @@
             </div>
           </li>
         </ul>
+
         <div class="pagination">
           <button @click="prevPage('reports')" :disabled="reportPage === 1">
             Previous
           </button>
-          <span>Page {{ reportPage }} of {{ totalReportPages }}</span>
+          <span>
+            Page
+            <select v-model="pageInput" @change="goToPage('reports')">
+              <option
+                v-for="page in totalReportPages"
+                :key="page"
+                :value="page"
+              >
+                {{ page }}
+              </option>
+            </select>
+            of {{ totalReportPages }}
+          </span>
           <button
             @click="nextPage('reports')"
             :disabled="reportPage === totalReportPages"
@@ -46,6 +63,7 @@
         </div>
       </div>
     </div>
+
     <div class="main-content" v-if="isReportSelected">
       <table class="table table-hover table-bordered">
         <thead>
@@ -145,7 +163,24 @@
         >
           Previous
         </button>
-        <span>Page {{ translationPage }} of {{ totalTranslationPages }}</span>
+        <span
+          >Page
+          <select
+            v-model="pageInputTranslation"
+            @change="goToPage('translations')"
+            style="margin: 0 10px"
+          >
+            <option
+              v-for="page in totalTranslationPages"
+              :key="page"
+              :value="page"
+            >
+              {{ page }}
+            </option>
+          </select>
+          of {{ totalTranslationPages }}</span
+        >
+
         <button
           @click="nextPage('translations')"
           :disabled="translationPage === totalTranslationPages"
@@ -191,6 +226,8 @@ export default {
       translationPage: 1,
       reportsPerPage: 10,
       translationsPerPage: 25,
+      pageInput: 1,
+      pageInputTranslation: 1,
     };
   },
   components: {
@@ -336,6 +373,29 @@ export default {
         }
       }
     },
+    goToPage(type) {
+      const pageNumber =
+        type === "reports"
+          ? parseInt(this.pageInput)
+          : parseInt(this.pageInputTranslation);
+      if (type === "reports") {
+        if (pageNumber >= 1 && pageNumber <= this.totalReportPages) {
+          this.reportPage = pageNumber;
+        } else {
+          alert(
+            `Please enter a valid page number between 1 and ${this.totalReportPages}.`
+          );
+        }
+      } else if (type === "translations") {
+        if (pageNumber >= 1 && pageNumber <= this.totalTranslationPages) {
+          this.translationPage = pageNumber; // Set the current page to the input value
+        } else {
+          alert(
+            `Please enter a valid page number between 1 and ${this.totalTranslationPages}.`
+          );
+        }
+      }
+    },
   },
   mounted() {
     this.fetchReports();
@@ -366,6 +426,7 @@ body {
 .main-content {
   margin-bottom: 80px;
   padding: 30px;
+  margin-left: 90px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 5px 6px rgba(0, 0, 0, 0.5);
@@ -517,9 +578,9 @@ body {
 
 .pagination {
   display: flex;
-  justify-content: center;
   align-items: center;
   padding: 10px 0;
+  margin-top: 10px;
 }
 
 .pagination button {
@@ -529,7 +590,7 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  margin: 0 5px; /* Add margin to separate buttons */
+  margin: 0 5px;
 }
 
 .pagination button:disabled {
@@ -539,7 +600,15 @@ body {
 
 .pagination span {
   font-size: 14px;
-  margin: 0 10px; /* Add margin to separate text from buttons */
+  margin: 0 10px;
+}
+
+.pagination select {
+  margin: 0 10px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 60px;
 }
 
 /* Form Styling */
@@ -586,7 +655,8 @@ body {
 .sidebar {
   background-color: #fff;
   padding: 10px;
-  margin-left: 10px;
+  width: 300px;
+  margin-left: 20px;
   margin-bottom: 80px;
   border-radius: 8px;
   box-shadow: 0 5px 6px rgba(0, 0, 0, 0.5);
@@ -636,5 +706,13 @@ body {
 
 .nav ul li:last-child {
   margin-bottom: 0;
+}
+
+.nav .selected-report {
+  background-color: #1f1f1f;
+  color: #fff;
+  transform: scale(1.05);
+  padding: 10px;
+  transition: transform 0.2s ease;
 }
 </style>

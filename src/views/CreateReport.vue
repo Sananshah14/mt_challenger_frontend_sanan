@@ -12,13 +12,32 @@
         <!-- Div 1: File Upload -->
         <div class="card mb-4">
           <div class="card-body">
-            <h5 class="card-title">File Upload</h5>
+            <h5 class="card-title">Upload Multiple File</h5>
             <input
               type="file"
               class="form-control"
               @change="handleFileUpload"
+              multiple
             />
-            <!-- Add drag and drop functionality here if desired -->
+            <!-- Drag and Drop Area -->
+            <div
+              class="drop-zone"
+              @dragover.prevent
+              @drop.prevent="handleDrop"
+              @dragleave="handleDragLeave"
+              @dragenter="handleDragEnter"
+            >
+              <p>Drag and drop files here or click to upload</p>
+            </div>
+            <!-- Display Uploaded File Names -->
+            <div v-if="selectedFiles.length > 0" class="mt-3">
+              <h6>Uploaded Files:</h6>
+              <ul>
+                <li v-for="(file, index) in selectedFiles" :key="index">
+                  {{ file.fileName }}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
@@ -40,6 +59,7 @@
                   <th>Engine Type</th>
                   <th>Language Direction</th>
                   <th>Comments</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,13 +90,11 @@
                       v-model="file.languageDirection"
                       class="form-select"
                     >
-                      <option value="">Select Language Direction</option>
+                      <option value="">Language Direction</option>
                       <option value="ende">English to German</option>
                       <option value="deen">German to English</option>
                       <option value="enrn">English to Russian</option>
-                      <option value="dern">German to Russain</option>
-
-                      <!-- Add options for LanguageDirection -->
+                      <option value="dern">German to Russian</option>
                     </select>
                   </td>
                   <td>
@@ -84,6 +102,11 @@
                       v-model="file.comment"
                       class="form-control"
                     ></textarea>
+                  </td>
+                  <td>
+                    <button @click="deleteFile(index)" class="btn btn-danger">
+                      Delete
+                    </button>
                   </td>
                 </tr>
               </tbody>
@@ -187,10 +210,12 @@ export default {
     };
   },
   methods: {
-    handleFileUpload(event) {
-      const fileList = event.target.files;
-
-      // Create an array to hold all file reading promises
+    handleDrop(event) {
+      const files = event.dataTransfer.files;
+      const fileArray = Array.from(files); // Convert FileList to Array
+      this.processFiles(fileArray); // Process the files
+    },
+    processFiles(fileList) {
       const promises = [];
 
       for (let i = 0; i < fileList.length; i++) {
@@ -203,7 +228,6 @@ export default {
           new Promise((resolve, reject) => {
             this.readFileContent(file)
               .then((fileContent) => {
-                // Resolve with an object containing file data and content
                 resolve({
                   fileName: file.name,
                   template: templateID,
@@ -211,7 +235,7 @@ export default {
                   engine_type: "",
                   languageDirection: "",
                   comment: "",
-                  content: fileContent, // Store content as text
+                  content: fileContent,
                 });
               })
               .catch((error) => {
@@ -231,6 +255,10 @@ export default {
         .catch((error) => {
           console.error("Error processing files:", error);
         });
+    },
+    handleFileUpload(event) {
+      const fileList = event.target.files;
+      this.processFiles(Array.from(fileList)); // Convert FileList to Array and process
     },
     readFileContent(file) {
       return new Promise((resolve, reject) => {
@@ -264,6 +292,27 @@ export default {
           });
       }
     },
+    deleteFile(index) {
+      this.selectedFiles.splice(index, 1);
+    },
+    handleDragEnter(event) {
+      event.target.classList.add("dragging");
+    },
+    handleDragLeave(event) {
+      event.target.classList.remove("dragging");
+    },
   },
 };
 </script>
+
+<style>
+.drop-zone {
+  border: 2px dashed #007bff;
+  padding: 20px;
+  text-align: center;
+  margin-top: 10px;
+}
+.drop-zone.dragging {
+  background-color: #e9ecef;
+}
+</style>

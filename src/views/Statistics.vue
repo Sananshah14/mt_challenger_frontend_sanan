@@ -1,6 +1,5 @@
 <template>
   <div id="app" class="dashboard-container">
-    <!-- Sidebar component to display all templates -->
     <div class="sidebar">
       <div class="nav">
         <input
@@ -47,12 +46,24 @@
         </ul>
 
         <div class="pagination">
-          <button @click="prevPage('templates')" :disabled="templatePage === 1">
+          <button @click="prevPage" :disabled="templatePage === 1">
             Previous
           </button>
-          <span>Page {{ templatePage }} of {{ totalReportPages }}</span>
+          <span>
+            Page
+            <select v-model="pageInput" @change="goToPage">
+              <option
+                v-for="page in totalReportPages"
+                :key="page"
+                :value="page"
+              >
+                {{ page }}
+              </option>
+            </select>
+            of {{ totalReportPages }}
+          </span>
           <button
-            @click="nextPage('templates')"
+            @click="nextPage"
             :disabled="templatePage === totalReportPages"
           >
             Next
@@ -114,6 +125,7 @@ export default {
       templatesPerPage: 25,
       comparisonData: null,
       selectedTemplateId: null,
+      pageInput: 1,
     };
   },
   components: {
@@ -213,6 +225,16 @@ export default {
     nextPage() {
       if (this.templatePage < this.totalReportPages) {
         this.templatePage++;
+      }
+    },
+    goToPage() {
+      const pageNumber = parseInt(this.pageInput);
+      if (pageNumber >= 1 && pageNumber <= this.totalReportPages) {
+        this.templatePage = pageNumber;
+      } else {
+        alert(
+          `Please enter a valid page number between 1 and ${this.totalReportPages}.`
+        );
       }
     },
   },
@@ -389,8 +411,11 @@ body {
 
 /* Template Title */
 .template-item.selected-template {
-  background-color: #3d3f3d; /* Light cyan background for selected item */
-  border: 1px solid #9ed453;
+  background-color: #1f1f1f;
+  color: #fff;
+  transform: scale(1.05);
+
+  transition: transform 0.2s ease;
 }
 .template-title {
   font-weight: bold;

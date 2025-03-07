@@ -214,7 +214,6 @@ export default {
     },
   },
   created() {
-    // Fetch data from the API when the component is created
     this.fetchCategories();
   },
   methods: {
@@ -223,10 +222,9 @@ export default {
         const response = await axios.get(
           "http://127.0.0.1:8000/api/categories/"
         );
-        // Extract the data from the response
+
         const categoryData = response.data;
 
-        // Map the category data to the format expected by your component
         this.categories = categoryData.map((category) => ({
           name: category.name,
           Phenomenon: category.phenomenon_set.map((item) => item.name),
@@ -265,13 +263,11 @@ export default {
             .selectionValue,
         };
 
-        // Make a POST request to send the test data to the server
         const response = await axios.post(
           "http://127.0.0.1:8000/api/testitems/filter_test_items/",
           testset
         );
 
-        // Update the tableData with the response data
         this.tableData = response.data.map((item) => ({
           id: item.id,
           source_sentence: item.source_sentence,

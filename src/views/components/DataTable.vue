@@ -95,29 +95,32 @@ export default {
 
     async downloadTextFile() {
       try {
+        const testItemIds = this.tableData.map((item) => item.id);
         const response = await axios.post(
           "http://127.0.0.1:8000/api/testitems/download_text_file/",
           {
-            content: this.tableData,
             scramblingFactor: this.value,
+            content: testItemIds,
           }
         );
 
         const templateId = response.data.template_id;
         const textFileContent = response.data.text_file_content;
 
-        const blob = new Blob([textFileContent], { type: "text/plain" });
+        if (templateId && textFileContent) {
+          const blob = new Blob([textFileContent], { type: "text/plain" });
+          const filename = `template_${templateId}.txt`;
 
-        const filename = `template_${templateId}.txt`;
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = filename;
 
-        const link = document.createElement("a");
-        link.href = window.URL.createObjectURL(blob);
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } else {
+          console.error("Template ID or text file content is undefined.");
+        }
       } catch (error) {
         console.error("Error downloading text file:", error);
       }
