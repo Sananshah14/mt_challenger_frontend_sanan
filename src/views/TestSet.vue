@@ -40,7 +40,6 @@
               <option value="percentage">Percentage</option>
             </select>
           </div>
-
           <div class="col-md">
             <label for="selectionValue">{{
               selectionType === "number" ? "How Many" : "Percentage"
@@ -54,7 +53,6 @@
               :max="selectionType === 'percentage' ? 100 : ''"
             />
           </div>
-
           <div class="col-md">
             <label for=" ">Select Categories and Phenomenon</label>
 
@@ -162,7 +160,7 @@ export default {
       Phenomenon: [],
       selectedSubcategories: [],
       isCategoryListVisible: false,
-      selectedLanguagePair: "deen",
+      selectedLanguagePair: "",
       SourceLanguage: "",
       TargetLanguage: "",
       howMany: "",
@@ -204,7 +202,9 @@ export default {
       const selected = this.languageOptions.find(
         (option) => option.value === this.selectedLanguagePair
       );
-      return selected ? `${selected.source} ${selected.target}` : "";
+      return selected
+        ? `${selected.source} ${selected.target}`
+        : "Select Language Pair";
     },
     selectedLanguageIcon() {
       const selected = this.languageOptions.find(

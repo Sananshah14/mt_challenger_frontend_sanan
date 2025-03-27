@@ -1,6 +1,5 @@
 <template>
   <div id="app" class="dashboard-container">
-    <!-- Sidebar component to display all reports -->
     <div class="sidebar">
       <div class="nav">
         <li>
@@ -63,7 +62,6 @@
         </div>
       </div>
     </div>
-
     <div class="main-content" v-if="isReportSelected">
       <table class="table table-hover table-bordered">
         <thead>
@@ -147,7 +145,7 @@
             :class="getRowClass(translation.label)"
             @click="openPopup(translation.id)"
           >
-            <td>{{}}</td>
+            <td @click.stop="changeLabel(translation)">{{}}</td>
             <td>{{ translation.id }}</td>
             <td>{{ translation.source_sentence }}</td>
             <td>{{ translation.category_name }}</td>
@@ -307,10 +305,14 @@ export default {
       axios
         .get("http://127.0.0.1:8000/api/reports")
         .then((response) => {
-          this.reports = response.data.map((report) => ({
-            ...report,
-            created_time: new Date(report.created_time).toLocaleString(),
-          }));
+          this.reports = response.data
+            .map((report) => ({
+              ...report,
+              created_time: new Date(report.created_time).toLocaleString(),
+            }))
+            .sort(
+              (a, b) => new Date(b.created_time) - new Date(a.created_time)
+            );
         })
         .catch((error) => {
           console.error("Error fetching reports:", error);
@@ -388,12 +390,36 @@ export default {
         }
       } else if (type === "translations") {
         if (pageNumber >= 1 && pageNumber <= this.totalTranslationPages) {
-          this.translationPage = pageNumber; // Set the current page to the input value
+          this.translationPage = pageNumber;
         } else {
           alert(
             `Please enter a valid page number between 1 and ${this.totalTranslationPages}.`
           );
         }
+      }
+    },
+    changeLabel(translation) {
+      const currentLabel = translation.label;
+      if (currentLabel === 3) {
+        translation.label = 2;
+      } else if (currentLabel === 2) {
+        translation.label = 1;
+      } else if (currentLabel === 1) {
+        translation.label = 3;
+      }
+    },
+    getLabelText(label) {
+      switch (label) {
+        case 1:
+          return "Pass";
+        case 2:
+          return "Fail";
+        case 3:
+          return "Warning";
+        case 4:
+          return "Conflict";
+        default:
+          return "Unknown";
       }
     },
   },

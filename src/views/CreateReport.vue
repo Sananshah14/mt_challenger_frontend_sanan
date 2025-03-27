@@ -19,29 +19,6 @@
               @change="handleFileUpload"
               multiple
             />
-<<<<<<< HEAD
-            <!-- Drag and Drop Area -->
-            <div
-              class="drop-zone"
-              @dragover.prevent
-              @drop.prevent="handleDrop"
-              @dragleave="handleDragLeave"
-              @dragenter="handleDragEnter"
-            >
-              <p>Drag and drop files here or click to upload</p>
-            </div>
-            <!-- Display Uploaded File Names -->
-            <div v-if="selectedFiles.length > 0" class="mt-3">
-              <h6>Uploaded Files:</h6>
-              <ul>
-                <li v-for="(file, index) in selectedFiles" :key="index">
-                  {{ file.fileName }}
-                </li>
-              </ul>
-            </div>
-=======
-           
->>>>>>> 755cc14a710c544d3a68fbd2015e44714479e632
           </div>
         </div>
       </div>
@@ -123,6 +100,15 @@
       </div>
     </div>
   </div>
+  <div class="container" style="margin-top: 20px">
+    <div class="row">
+      <div class="col-lg-12">
+        <div v-if="successMessage" class="alert alert-success" role="alert">
+          {{ successMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -133,6 +119,7 @@ export default {
   data() {
     return {
       selectedFiles: [],
+      successMessage: "",
       engineOptions: [
         "Google",
         "Google API",
@@ -289,10 +276,12 @@ export default {
           })
           .then((response) => {
             console.log("Report creation successful", response.data);
-            this.selectedFiles = []; 
+            this.successMessage = "Report created successfully!";
+            this.selectedFiles = [];
           })
           .catch((error) => {
             console.error("Error creating report", error);
+            this.successMessage = "";
           });
       }
     },

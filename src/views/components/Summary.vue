@@ -12,7 +12,6 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Display rows for each category -->
         <tr
           v-for="(data, category) in comparisonData.result"
           :key="category"
@@ -58,12 +57,12 @@
         <h4>Details for {{ selectedCategory }}</h4>
         <div class="modal-table-container">
           <table class="modal-table">
-            <thead>
+            <thead class="sticky-header">
               <tr>
-                <th class="fixed-column">ID</th>
-                <th class="fixed-column">Source Sentence</th>
-                <th class="fixed-column">Category</th>
-                <th class="fixed-column">Phenomenon</th>
+                <th>ID</th>
+                <th>Source Sentence</th>
+                <th>Category</th>
+                <th>Phenomenon</th>
                 <th v-for="engine in selectedEngines" :key="engine.reportid">
                   {{ engine.engine_name }}
                 </th>
@@ -71,13 +70,22 @@
             </thead>
             <tbody>
               <tr v-for="(item, index) in modalData" :key="index">
-                <td class="fixed-column">{{ item.id }}</td>
+                <td>{{ item.id }}</td>
                 <td class="fixed-column">{{ item.source_sentence }}</td>
-                <td class="fixed-column">{{ item.category_name }}</td>
-                <td class="fixed-column">{{ item.phenomenon_name }}</td>
-                <td v-for="engine in selectedEngines" :key="engine.reportid">
+                <td>{{ item.category_name }}</td>
+                <td>{{ item.phenomenon_name }}</td>
+
+                <td
+                  v-for="engine in selectedEngines"
+                  :key="engine.reportid"
+                  class="translation-cell"
+                  :class="
+                    getLabelClass(item.translations[engine.engine_name]?.label)
+                  "
+                  @click="openPopup(item.translations[engine.engine_name]?.id)"
+                >
                   <div v-if="item.translations[engine.engine_name]">
-                    {{ item.translations[engine.engine_name] }}
+                    {{ item.translations[engine.engine_name].sentence }}
                   </div>
                   <div v-else>-</div>
                 </td>
@@ -88,10 +96,16 @@
       </div>
     </div>
   </div>
+  <PopupCard
+    v-if="selectedTranslationId"
+    :translationId="selectedTranslationId"
+    @close="closePopup"
+  />
 </template>
 
 <script>
-import axios from "axios"; // Import axios for making HTTP requests
+import axios from "axios";
+import PopupCard from "./PopupCard.vue";
 
 export default {
   name: "Summary",
@@ -105,11 +119,16 @@ export default {
       required: true,
     },
   },
+  components: {
+    PopupCard,
+  },
   data() {
     return {
       showModal: false,
       selectedCategory: null,
       modalData: [],
+      selectedTranslationId: null,
+      showPopup: false,
     };
   },
   methods: {
@@ -125,32 +144,48 @@ export default {
     async fetchModalData(category) {
       try {
         const encodedCategory = encodeURIComponent(category);
-
-        // Create a comma-separated string of report IDs
         const reportIds = this.selectedEngines
           .map((engine) => engine.reportid)
           .join(",");
 
-        // Construct the URL with the report IDs as a single parameter
         const response = await axios.get(
           `${process.env.VUE_APP_API_BASE_URL}/api/category/${encodedCategory}/test-items/?reports=${reportIds}`
         );
 
-        this.modalData = response.data;
+        this.modalData = response.data; 
       } catch (error) {
         console.error("Error fetching modal data:", error);
         this.modalData = [];
       }
     },
-  },
-  mounted() {
-    console.log("comparisonData:", this.comparisonData);
+    getLabelClass(label) {
+      switch (label) {
+        case 1:
+          return "pass";
+        case 2:
+          return "fail";
+        case 3:
+          return "warning";
+        case 4: // CONFLICT
+          return "conflict";
+        default:
+          return "";
+      }
+    },
+    openPopup(translationId) {
+      this.selectedTranslationId = translationId;
+      this.showPopup = true;
+    },
+    closePopup() {
+      this.selectedTranslationId = null;
+      this.showPopup = false;
+    },
   },
 };
 </script>
 
 <style scoped>
-/* Add your CSS styling here */
+/* General Table Styling */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -163,16 +198,6 @@ td {
 th {
   background-color: #f2f2f2;
 }
-.fixed-column {
-  width: 150px; /* Set a fixed width for the columns */
-  white-space: nowrap; /* Prevent text wrapping */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Add ellipsis for overflow text */
-  position: sticky; /* Make the column sticky */
-  left: 0; /* Align to the left */
-  background: #f2f2f2; /* Background color for sticky columns */
-  z-index: 1; /* Ensure it stays above other content */
-}
 .clickable-row {
   cursor: pointer;
   transition: background-color 0.3s;
@@ -180,8 +205,10 @@ th {
 .clickable-row:hover {
   background-color: #f1f1f1;
 }
+
+/* Modal Styling */
 .modal {
-  display: block; /* Hidden by default */
+  display: block;
   position: fixed;
   z-index: 1;
   left: 0;
@@ -189,21 +216,18 @@ th {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.4);
 }
 .modal-content {
   background-color: #fefefe;
-  margin: 5% auto; /* Adjusted margin for better centering */
-  padding: 20px;
+  margin: 5% auto;
   border: 1px solid #888;
   width: 80%;
-  max-height: 80%; /* Limit the height of the modal */
-  overflow-y: auto; /* Enable vertical scrolling */
-}
-.modal-table-container {
-  max-height: 60vh; /* Limit the height of the table */
-  overflow-y: auto; /* Enable vertical scrolling for the table */
+  max-height: 80%;
+  overflow-y: auto;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 .close {
   color: #aaa;
@@ -216,5 +240,79 @@ th {
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Modal Table Container */
+.modal-table-container {
+  max-height: 60vh;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: nowrap;
+}
+
+/* Table Styling in Modal */
+.modal-table {
+  width: max-content;
+  border-collapse: collapse;
+}
+.modal-table th,
+.modal-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: #f2f2f2;
+  z-index: 2;
+}
+
+/* Fixed Source Sentence Column */
+.fixed-column {
+  position: sticky;
+  left: 0;
+  background: #f2f2f2;
+  z-index: 3;
+  min-width: 250px;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+/* Dynamic Translation Cells */
+.translation-cell {
+  min-width: 200px;
+  max-width: 300px;
+  white-space: normal;
+  padding: 10px;
+}
+
+/* Background Colors for Labels */
+.pass {
+  background-color: #c8e6c9; /* Light green */
+  color: black; /* Ensure text is visible */
+}
+
+.fail {
+  background-color: #ffcdd2; /* Light red */
+  color: black; /* Ensure text is visible */
+}
+
+.warning {
+  background-color: #fff9c4; /* Light yellow */
+  color: black; /* Ensure text is visible */
+}
+
+.conflict {
+  background-color: #d1c4e9; /* Light purple */
+  color: black; /* Ensure text is visible */
+}
+
+/* Ensuring the Source Sentence Column Doesn't Overlap */
+.fixed-column:nth-child(2) {
+  left: 0;
+  z-index: 3;
 }
 </style>
