@@ -263,6 +263,7 @@ export default {
             .selectionValue,
         };
 
+        // Make a POST request to send the test data to the server
         const response = await axios.post(
           "http://127.0.0.1:8000/api/testitems/filter_test_items/",
           testset

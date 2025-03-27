@@ -19,6 +19,7 @@
               @change="handleFileUpload"
               multiple
             />
+<<<<<<< HEAD
             <!-- Drag and Drop Area -->
             <div
               class="drop-zone"
@@ -38,6 +39,9 @@
                 </li>
               </ul>
             </div>
+=======
+           
+>>>>>>> 755cc14a710c544d3a68fbd2015e44714479e632
           </div>
         </div>
       </div>
@@ -285,7 +289,7 @@ export default {
           })
           .then((response) => {
             console.log("Report creation successful", response.data);
-            this.selectedFiles = []; // Clear selected files after successful creation
+            this.selectedFiles = []; 
           })
           .catch((error) => {
             console.error("Error creating report", error);
